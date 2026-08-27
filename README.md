@@ -9,7 +9,7 @@ Add the package in Xcode via **File → Add Package Dependencies…** and enter 
 or add it to your own `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/lume/LumeMetricsKit.git", from: "1.0.0")
+.package(url: "https://github.com/lukashevich/LumeMetricsKit.git", from: "1.0.0")
 ```
 
 Then start it once, at launch:
