@@ -10,7 +10,7 @@ struct Configuration: Sendable, Equatable {
     /// `Info.plist` key enabling non-sensitive diagnostic logging.
     static let debugLoggingInfoKey = "LumeMetricsDebugLogging"
 
-    static let defaultEndpoint = URL(string: "https://api.lume.app/v1/telemetry/events")!
+    static let defaultEndpoint = URL(string: "https://lumeservice.onrender.com/v1/telemetry/events")!
 
     /// `nil` when no usable key is configured. The SDK is inert in that case.
     let writeKey: String?

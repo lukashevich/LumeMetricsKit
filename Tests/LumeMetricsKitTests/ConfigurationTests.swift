@@ -50,10 +50,39 @@ struct ConfigurationTests {
         #expect(configuration.writeKey == "wk_live_abc")
     }
 
-    @Test("The endpoint defaults to the Lume ingest URL")
+    /// Pins the shipped ingest URL. Events silently stop arriving if this drifts, and a wrong
+    /// path answers `404`, which the retry policy treats as permanent — so this is asserted
+    /// literally rather than via the constant it guards.
+    @Test("The default endpoint is the Lume ingest URL, exactly")
+    func defaultEndpointIsPinned() {
+        #expect(
+            Configuration.defaultEndpoint.absoluteString
+                == "https://lumeservice.onrender.com/v1/telemetry/events"
+        )
+        #expect(Configuration.defaultEndpoint.scheme == "https")
+        #expect(Configuration.defaultEndpoint.host == "lumeservice.onrender.com")
+        #expect(Configuration.defaultEndpoint.path == "/v1/telemetry/events")
+    }
+
+    @Test("An app that configures no endpoint gets the default one")
     func defaultEndpoint() {
         let configuration = Configuration(infoDictionary: [Configuration.writeKeyInfoKey: "wk"])
-        #expect(configuration.endpoint.absoluteString == "https://api.lume.app/v1/telemetry/events")
+        #expect(
+            configuration.endpoint.absoluteString
+                == "https://lumeservice.onrender.com/v1/telemetry/events"
+        )
+    }
+
+    @Test("Events are posted to the default endpoint when Info.plist names none")
+    func deliveryUsesDefaultEndpoint() async throws {
+        let transport = FakeTransport()
+        await launch(makeDependencies(
+            configuration: Configuration(infoDictionary: [Configuration.writeKeyInfoKey: "wk"]),
+            transport: transport
+        ))
+
+        let attempt = try #require(transport.attempts.value.first)
+        #expect(attempt.endpoint == Configuration.defaultEndpoint)
     }
 
     @Test("A configured endpoint is used")

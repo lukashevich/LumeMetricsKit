@@ -42,13 +42,13 @@ Two keys in `Info.plist`:
 | Key | Required | Value |
 | --- | --- | --- |
 | `LumeMetricsWriteKey` | yes | Your Lume write key. Sent as `Authorization: Bearer <key>`. |
-| `LumeMetricsEndpoint` | no | Ingest URL. Defaults to `https://api.lume.app/v1/telemetry/events`. |
+| `LumeMetricsEndpoint` | no | Ingest URL. Defaults to `https://lumeservice.onrender.com/v1/telemetry/events`. |
 
 ```xml
 <key>LumeMetricsWriteKey</key>
 <string>wk_live_your_key_here</string>
 <key>LumeMetricsEndpoint</key>
-<string>https://api.lume.app/v1/telemetry/events</string>
+<string>https://lumeservice.onrender.com/v1/telemetry/events</string>
 ```
 
 Without `LumeMetricsWriteKey` the SDK is completely inert: nothing is generated, stored, sent, or
