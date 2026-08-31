@@ -78,8 +78,8 @@ App Store transaction: an installation whose original app version differs from
 the current build is reported as `appUpdated`, while an installation that was
 first downloaded on the current build sends `firstOpen`. The original version is
 stable across upgrades. If an App Store transaction is unavailable (for example,
-on an unsupported OS or outside App Store distribution), the SDK baselines the
-installation without emitting `firstOpen` rather than counting it incorrectly.
+below iOS 16 or macOS 13, or outside App Store distribution), the SDK baselines
+the installation without emitting `firstOpen` rather than counting it incorrectly.
 
 There is no screen, click, session, paywall, or heartbeat tracking, and no API to add any.
 

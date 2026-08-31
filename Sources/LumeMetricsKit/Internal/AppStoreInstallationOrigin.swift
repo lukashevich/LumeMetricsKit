@@ -12,7 +12,7 @@ enum InstallationOrigin: Sendable {
 
 enum AppStoreInstallationOrigin {
     static func current(for environment: AppEnvironment) async -> InstallationOrigin {
-        guard #available(iOS 15.0, macOS 13.0, *) else {
+        guard #available(iOS 16.0, macOS 13.0, *) else {
             return .unavailable
         }
 
