@@ -32,6 +32,37 @@ struct EventLifecycleTests {
         #expect(transport.sentEvents.map(\.event) == [.firstOpen])
     }
 
+    @Test("An existing installation is reported as an app update, never as a first open")
+    func existingInstallationIsAnAppUpdate() async throws {
+        let store = FakeInstallationStore()
+        let transport = FakeTransport()
+
+        await launch(makeDependencies(
+            installationStore: store,
+            transport: transport,
+            installationOrigin: .existingInstallation
+        ))
+
+        #expect(transport.sentEvents.map(\.event) == [.appUpdated])
+        let record = try #require(store.state.value)
+        #expect(record.firstOpenRecorded)
+        #expect(record.lastRecordedBuild == "10")
+    }
+
+    @Test("An unavailable App Store transaction is baselined rather than counted incorrectly")
+    func unavailableOriginIsBaselined() async throws {
+        let store = FakeInstallationStore()
+        let transport = FakeTransport()
+        await launch(makeDependencies(
+            installationStore: store,
+            transport: transport,
+            installationOrigin: .unavailable
+        ))
+
+        #expect(transport.sentEvents.isEmpty)
+        #expect((try #require(store.state.value)).firstOpenRecorded)
+    }
+
     @Test("A second launch of the same build sends nothing")
     func secondLaunchIsSilent() async throws {
         let store = FakeInstallationStore()

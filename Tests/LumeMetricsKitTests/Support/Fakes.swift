@@ -128,6 +128,7 @@ func makeDependencies(
     installationStore: FakeInstallationStore = FakeInstallationStore(),
     queueStore: FakeQueueStore = FakeQueueStore(),
     transport: FakeTransport = FakeTransport(),
+    installationOrigin: InstallationOrigin = .newInstallation,
     now: Date = Date(timeIntervalSince1970: 1_772_000_000)
 ) -> Dependencies {
     let counter = Box(0)
@@ -137,6 +138,7 @@ func makeDependencies(
         installationStore: installationStore,
         queueStore: queueStore,
         transport: transport,
+        installationOrigin: { _ in installationOrigin },
         now: { now },
         newIdentifier: {
             let index = counter.mutate { value -> Int in

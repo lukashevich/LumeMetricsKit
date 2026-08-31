@@ -7,6 +7,7 @@ struct Dependencies: Sendable {
     var installationStore: any InstallationStore
     var queueStore: any EventQueueStore
     var transport: any EventTransport
+    var installationOrigin: @Sendable (AppEnvironment) async -> InstallationOrigin
     var now: @Sendable () -> Date = { Date() }
     var newIdentifier: @Sendable () -> UUID = { UUID() }
 }
@@ -40,7 +41,7 @@ actor MetricsCoordinator {
 
         var queue = dependencies.queueStore.load()
 
-        if let pending = pendingEvents(dependencies, log: log) {
+        if let pending = await pendingEvents(dependencies, log: log) {
             queue.append(contentsOf: pending)
             if queue.count > FileEventQueueStore.maximumEventCount {
                 let dropped = queue.count - FileEventQueueStore.maximumEventCount
@@ -61,7 +62,7 @@ actor MetricsCoordinator {
     ///
     /// The installation record is written *before* any delivery attempt: that write is the commit
     /// point, so a crash or an offline device can only ever delay an event, not duplicate it.
-    private func pendingEvents(_ dependencies: Dependencies, log: Log) -> [QueuedEvent]? {
+    private func pendingEvents(_ dependencies: Dependencies, log: Log) async -> [QueuedEvent]? {
         let existing: InstallationRecord?
         do {
             existing = try dependencies.installationStore.load()
@@ -81,7 +82,16 @@ actor MetricsCoordinator {
 
         var names: [MetricEvent.Name] = []
         if !record.firstOpenRecorded {
-            names.append(.firstOpen)
+            switch await dependencies.installationOrigin(dependencies.environment) {
+            case .newInstallation:
+                names.append(.firstOpen)
+            case .existingInstallation:
+                names.append(.appUpdated)
+            case .unavailable:
+                // The SDK cannot prove this is a new installation. Commit the
+                // local state but avoid falsely inflating First Open.
+                log.debug("App Store installation origin unavailable; baselining without an event.")
+            }
             record.firstOpenRecorded = true
         } else if let lastBuild = record.lastRecordedBuild, lastBuild != build {
             names.append(.appUpdated)

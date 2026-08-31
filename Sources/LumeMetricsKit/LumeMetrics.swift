@@ -49,7 +49,8 @@ public enum LumeMetrics {
             environment: environment,
             installationStore: KeychainInstallationStore(service: environment.bundleId),
             queueStore: FileEventQueueStore.applicationSupport(bundleId: environment.bundleId),
-            transport: URLSessionTransport()
+            transport: URLSessionTransport(),
+            installationOrigin: AppStoreInstallationOrigin.current
         )
 
         Task.detached(priority: .utility) {
